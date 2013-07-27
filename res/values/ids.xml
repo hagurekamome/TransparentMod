@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="valueseekbar_preference_seekbar">false</item>
+    <item type="id" name="valueseekbar_preference_value">false</item>
+	<item type="id" name="color_picker_view">false</item>
+	<item type="id" name="old_color_panel">false</item>
+	<item type="id" name="new_color_panel">false</item>
+</resources>

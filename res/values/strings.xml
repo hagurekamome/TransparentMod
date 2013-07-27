@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TransparentMod</string>
+    <string name="app_desription">Transparent Statusbar and NavigationBar</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="press_color_to_apply">Press on Color to apply</string> 
+</resources>
