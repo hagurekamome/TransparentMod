@@ -1,6 +1,5 @@
 package biz.hagurekamome.transparentmod;
 
-
 import android.content.res.XResources;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -22,20 +21,19 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResou
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 public class TransparentMod implements IXposedHookZygoteInit, IXposedHookInitPackageResources, IXposedHookLoadPackage{
+
 	private static XSharedPreferences pref = new XSharedPreferences(TransparentMod.class.getPackage().getName());
 
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
-		// TODO é©ìÆê∂ê¨Ç≥ÇÍÇΩÉÅÉ\ÉbÉhÅEÉXÉ^Éu
-    	if (!lpparam.packageName.equals("com.android.systemui"))
-            return;
-    	
-		try{
-				XposedHelpers.findAndHookMethod("com.android.systemui.statusbar.phone.PhoneStatusBar", lpparam.classLoader,"getNavigationBarLayoutParams",
-					new XC_MethodReplacement(){
+
+		if (!lpparam.packageName.equals("com.android.systemui"))
+			return;
+
+		try {
+				XposedHelpers.findAndHookMethod("com.android.systemui.statusbar.phone.PhoneStatusBar", lpparam.classLoader,"getNavigationBarLayoutParams", new XC_MethodReplacement(){
 					@Override
-					protected Object replaceHookedMethod(MethodHookParam param)
-						throws Throwable {
+					protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
 						WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
 								LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
 								0x7e3,
@@ -44,8 +42,7 @@ public class TransparentMod implements IXposedHookZygoteInit, IXposedHookInitPac
 								| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 								| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
 								| WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
-								PixelFormat.TRANSLUCENT);
-						// this will allow the navbar to run in an overlay on devices that support this
+								PixelFormat.TRANSLUCENT);		//PixelFormat.OPAQUE„Å†„Å£„Åü„ÅÆ„ÇíÁΩÆ„ÅçÊèõ„Åà
 						lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
 						lp.setTitle("NavigationBar");
 						lp.windowAnimations = 0;
@@ -53,25 +50,22 @@ public class TransparentMod implements IXposedHookZygoteInit, IXposedHookInitPac
 					}
 				});
 				
-				XposedHelpers.findAndHookMethod("com.android.systemui.statusbar.phone.PhoneStatusBar", lpparam.classLoader,"makeStatusBarView",
-					new XC_MethodHook(){
-        			@Override
-        			protected void afterHookedMethod(MethodHookParam param) throws Throwable
-        			{
-        				XposedHelpers.setIntField(param.thisObject, "mPixelFormat", PixelFormat.TRANSLUCENT);
-        			}
-        		});
+				XposedHelpers.findAndHookMethod("com.android.systemui.statusbar.phone.PhoneStatusBar", lpparam.classLoader,"makeStatusBarView", new XC_MethodHook(){
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						// mPixelFormat = PixelFormat.OPAQUE„ÇíÁΩÆ„ÅçÊèõ„Åà
+						XposedHelpers.setIntField(param.thisObject, "mPixelFormat", PixelFormat.TRANSLUCENT);	
+					}
+				});
 
-				XposedHelpers.findAndHookMethod("com.android.systemui.statusbar.phone.PhoneStatusBar", lpparam.classLoader,"prepareNavigationBarView",
-						new XC_MethodHook(){
-	        			@Override
-	        			protected void afterHookedMethod(MethodHookParam param) throws Throwable
-	        			{
-	        				LinearLayout mNavigationBarView = (LinearLayout)XposedHelpers.getObjectField(param.thisObject, "mNavigationBarView");
-	        				mNavigationBarView.setBackgroundColor(pref.getInt("status_bar_background", 0xff000000));
-	        				XposedHelpers.setObjectField(param.thisObject, "mNavigationBarView", mNavigationBarView);
-	        			}
-	        		});
+				XposedHelpers.findAndHookMethod("com.android.systemui.statusbar.phone.PhoneStatusBar", lpparam.classLoader,"prepareNavigationBarView", new XC_MethodHook() {
+						@Override
+						protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+							LinearLayout mNavigationBarView = (LinearLayout)XposedHelpers.getObjectField(param.thisObject, "mNavigationBarView");
+							mNavigationBarView.setBackgroundColor(pref.getInt("status_bar_background", 0xff000000));
+							XposedHelpers.setObjectField(param.thisObject, "mNavigationBarView", mNavigationBarView);
+						}
+					});
 		} catch (Throwable t) {
 			XposedBridge.log(t);
 		}
@@ -79,9 +73,8 @@ public class TransparentMod implements IXposedHookZygoteInit, IXposedHookInitPac
 	}
 
 	@Override
-	public void handleInitPackageResources(InitPackageResourcesParam resparam)
-			throws Throwable {
-		// TODO é©ìÆê∂ê¨Ç≥ÇÍÇΩÉÅÉ\ÉbÉhÅEÉXÉ^Éu
+	public void handleInitPackageResources(InitPackageResourcesParam resparam) throws Throwable {
+
 		if (!resparam.packageName.equals("com.android.systemui"))
 			return;
 
@@ -109,25 +102,25 @@ public class TransparentMod implements IXposedHookZygoteInit, IXposedHookInitPac
 
 	@Override
 	public void initZygote(StartupParam startupParam) throws Throwable {
-		// TODO é©ìÆê∂ê¨Ç≥ÇÍÇΩÉÅÉ\ÉbÉhÅEÉXÉ^Éu
+
 		try{
 			Class<?> localClass = XposedHelpers.findClass("com.android.internal.policy.impl.PhoneWindowManager", null);
 			Object[] arrayOfObject = new Object[2];
-			arrayOfObject[0] = Rect.class;
-			arrayOfObject[1] = new XC_MethodReplacement(){
+			arrayOfObject[0] = Rect.class;						//getgetSystemDecorRectLw„Å´Ê∏°„Åï„Çå„ÇãÂºïÊï∞„ÅÆÂûã
+			arrayOfObject[1] = new XC_MethodReplacement() {
 				@Override
-				protected Object replaceHookedMethod(MethodHookParam param)
-					throws Throwable {
-					Rect localRect = (Rect)param.args[0];
-					localRect.left = XposedHelpers.getIntField(param.thisObject, "mSystemLeft");
-					localRect.right = XposedHelpers.getIntField(param.thisObject, "mSystemRight");
-					localRect.top = XposedHelpers.getIntField(param.thisObject, "mSystemTop");
-					localRect.bottom = XposedHelpers.getIntField(param.thisObject, "mSystemBottom");
-				// TODO é©ìÆê∂ê¨Ç≥ÇÍÇΩÉÅÉ\ÉbÉhÅEÉXÉ^Éu
-					return Integer.valueOf(0);
+				protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+						Rect localRect = (Rect)param.args[0];
+						localRect.left = XposedHelpers.getIntField(param.thisObject, "mSystemLeft");
+						localRect.right = XposedHelpers.getIntField(param.thisObject, "mSystemRight");
+						localRect.top = XposedHelpers.getIntField(param.thisObject, "mSystemTop");
+						localRect.bottom = XposedHelpers.getIntField(param.thisObject, "mSystemBottom");
+						return Integer.valueOf(0);
 				}
 			};
+
 			XposedHelpers.findAndHookMethod(localClass, "getSystemDecorRectLw", arrayOfObject);
+
 		} catch (Throwable t) {
 			XposedBridge.log(t);
 		}

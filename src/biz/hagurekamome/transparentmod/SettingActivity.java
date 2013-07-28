@@ -25,7 +25,7 @@ public class SettingActivity extends Activity {
 
 	@Override
 	public void onDestroy(){
-		Toast.makeText(getApplication(), "İ’è‚Ì•ÏX‚Í’[––Ä‹N“®Œã‚É”½‰f‚³‚ê‚Ü‚·", Toast.LENGTH_SHORT).show();
+		Toast.makeText(getApplication(), "è¨­å®šã®å¤‰æ›´ã¯ç«¯æœ«å†èµ·å‹•å¾Œã«åæ˜ ã•ã‚Œã¾ã™", Toast.LENGTH_SHORT).show();
 		super.onDestroy();
 	}
 }
